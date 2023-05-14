@@ -1,56 +1,58 @@
 """
 Support for Selve cover - shutters etc.
 """
+from custom_components.selve import SelveDevice
 import logging
 
-import voluptuous as vol
+from homeassistant.components.cover import CoverEntity
 
-from homeassistant.components.cover import (
-    CoverEntity, ATTR_POSITION, SUPPORT_OPEN, SUPPORT_CLOSE, SUPPORT_STOP,
-    SUPPORT_OPEN_TILT, SUPPORT_CLOSE_TILT, SUPPORT_STOP_TILT, SUPPORT_SET_POSITION, SUPPORT_SET_TILT_POSITION,
-    DEVICE_CLASS_WINDOW, DEVICE_CLASS_BLIND, DEVICE_CLASS_AWNING, DEVICE_CLASS_SHUTTER)
-from custom_components.selve import (
-    DOMAIN as SELVE_DOMAIN, SelveDevice)
+from .const import DOMAIN, GATEWAYS_KEY, SELVE_CLASSTYPES, SELVE_SUPPORTED_FEATURES
 
-from homeassistant.const import ATTR_ENTITY_ID
-import homeassistant.helpers.config_validation as cv
 
-DEPENDENCIES = ['selve']
+from typing import Callable, Optional
+from homeassistant.helpers.typing import (
+    ConfigType,
+    DiscoveryInfoType,
+    HomeAssistantType,
+)
+
 
 _LOGGER = logging.getLogger(__name__)
 
-SERVICE_SET_POS1 = 'selve_set_pos1'
-SERVICE_SET_POS2 = 'selve_set_pos2'
-
-SELVE_SERVICE_SCHEMA = vol.Schema({
-    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
-})
-
-SELVE_CLASSTYPES = {
-    0:None,
-    1:DEVICE_CLASS_SHUTTER,
-    2:DEVICE_CLASS_BLIND,
-    3:DEVICE_CLASS_SHUTTER,
-    4:'cover',
-    5:'cover',
-    6:'cover',
-    7:'cover',
-    8:'cover',
-    9:'cover',
-    10:'cover',
-    11:'cover',
-}
+def setup_platform(
+    hass: HomeAssistantType,
+    config: ConfigType,
+    add_entities: Callable,
+    discovery_info: Optional[DiscoveryInfoType] = None,
+) -> None:
+    """Set up Selve covers."""    
+    devices = [ SelveCover(device,SELVE_CLASSTYPES.get(device.device_type.value)) for device in hass.data[DOMAIN]['devices']['cover']]    
+    add_entities(devices)
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Set up Selve covers."""
-    controller = hass.data[SELVE_DOMAIN]['controller']
-    devices = [ SelveCover(device, controller) for device in hass.data[SELVE_DOMAIN]['devices']['cover']]
-    add_devices(devices, True)
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Perform the setup for Selve devices."""
+    entities = []
+    gateway = hass.data[DOMAIN][GATEWAYS_KEY][config_entry.entry_id]
+    gateway.discover()
+    for device in list(gateway.devices.values()): #TODO filter by type cover
+        device_type = SELVE_CLASSTYPES.get(device.device_type.value)
+        if device_type is None:
+            _LOGGER.warning('Unsupported type %s for Selve device %s',
+                            device.device_type, device.name)
+            continue
+        entities.append( SelveCover(device, device_type))
+            
+    async_add_entities(entities)
+
 
 
 class SelveCover(SelveDevice, CoverEntity):
     """Representation a Selve Cover."""
+
+    def __init__(self, selve_device, device_type):
+        super().__init__(selve_device)
+        self._device_type = device_type
 
     def update(self):
         """Update method."""
@@ -59,7 +61,7 @@ class SelveCover(SelveDevice, CoverEntity):
     @property
     def supported_features(self):
         """Flag supported features."""
-        return SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_STOP | SUPPORT_SET_POSITION | SUPPORT_OPEN_TILT | SUPPORT_CLOSE_TILT | SUPPORT_SET_TILT_POSITION
+        return SELVE_SUPPORTED_FEATURES
 
     @property
     def current_cover_position(self):
@@ -87,7 +89,7 @@ class SelveCover(SelveDevice, CoverEntity):
     @property
     def device_class(self):
         """Return the class of the device.""" 
-        return SELVE_CLASSTYPES.get(self.selve_device.device_type.value)
+        return self._device_type
     
 
     def open_cover(self, **kwargs):
@@ -96,6 +98,7 @@ class SelveCover(SelveDevice, CoverEntity):
 
     def open_cover_tilt(self, **kwargs):
         """Open the cover."""
+        # Using tilt for intermediate positions
         self.selve_device.moveIntermediatePosition1()        
 
     def close_cover(self, **kwargs):
@@ -104,6 +107,7 @@ class SelveCover(SelveDevice, CoverEntity):
 
     def close_cover_tilt(self, **kwargs):
         """Open the cover."""
+        # Using tilt for intermediate positions
         self.selve_device.moveIntermediatePosition2()        
 
     def stop_cover(self, **kwargs):
