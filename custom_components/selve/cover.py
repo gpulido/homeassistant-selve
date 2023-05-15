@@ -19,15 +19,15 @@ from homeassistant.helpers.typing import (
 
 _LOGGER = logging.getLogger(__name__)
 
-def setup_platform(
-    hass: HomeAssistantType,
-    config: ConfigType,
-    add_entities: Callable,
-    discovery_info: Optional[DiscoveryInfoType] = None,
-) -> None:
-    """Set up Selve covers."""    
-    devices = [ SelveCover(device,SELVE_CLASSTYPES.get(device.device_type.value)) for device in hass.data[DOMAIN]['devices']['cover']]    
-    add_entities(devices)
+# def setup_platform(
+#     hass: HomeAssistantType,
+#     config: ConfigType,
+#     add_entities: Callable,
+#     discovery_info: Optional[DiscoveryInfoType] = None,
+# ) -> None:
+#     """Set up Selve covers."""
+#     devices = [ SelveCover(device,SELVE_CLASSTYPES.get(device.device_type.value)) for device in hass.data[DOMAIN]['devices']['cover']]
+#     add_entities(devices)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -42,7 +42,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             device.device_type, device.name)
             continue
         entities.append( SelveCover(device, device_type))
-            
+
     async_add_entities(entities)
 
 
@@ -57,7 +57,7 @@ class SelveCover(SelveDevice, CoverEntity):
     def update(self):
         """Update method."""
         self.selve_device.discover_properties()
-    
+
     @property
     def supported_features(self):
         """Flag supported features."""
@@ -70,7 +70,7 @@ class SelveCover(SelveDevice, CoverEntity):
         0 is closed, 100 is fully open.
         """
         return 50
-    
+
     @property
     def current_cover_tilt_position(self):
         """
@@ -78,7 +78,7 @@ class SelveCover(SelveDevice, CoverEntity):
         0 is closed, 100 is fully open.
         """
         return 50
- 
+
     @property
     def is_closed(self):
         """Return if the cover is closed."""
@@ -88,34 +88,34 @@ class SelveCover(SelveDevice, CoverEntity):
 
     @property
     def device_class(self):
-        """Return the class of the device.""" 
+        """Return the class of the device."""
         return self._device_type
-    
+
 
     def open_cover(self, **kwargs):
         """Open the cover."""
-        self.selve_device.moveUp() 
+        self.selve_device.moveUp()
 
     def open_cover_tilt(self, **kwargs):
         """Open the cover."""
         # Using tilt for intermediate positions
-        self.selve_device.moveIntermediatePosition1()        
+        self.selve_device.moveIntermediatePosition1()
 
     def close_cover(self, **kwargs):
         """Close the cover."""
-        self.selve_device.moveDown()  
+        self.selve_device.moveDown()
 
     def close_cover_tilt(self, **kwargs):
         """Open the cover."""
         # Using tilt for intermediate positions
-        self.selve_device.moveIntermediatePosition2()        
+        self.selve_device.moveIntermediatePosition2()
 
     def stop_cover(self, **kwargs):
         """Stop the cover."""
         self.selve_device.stop()
-    
+
     def stop_cover_tilt(self, **kwargs):
         """Stop the cover."""
         self.selve_device.stop()
-    
-        
+
+

@@ -9,20 +9,20 @@ import homeassistant.helpers.config_validation as cv
 import logging
 from .const import *
 
-from homeassistant.const import CONF_PORT
+from homeassistant.const import CONF_PORT, Platform
 from selve import Gateway
 
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
-        vol.Required(CONF_PORT): cv.string,        
+        vol.Required(CONF_PORT): cv.string,
     }),
 }, extra=vol.ALLOW_EXTRA)
 
 
 SELVE_PLATFORMS = [
-    'cover'
+    Platform.COVER
 ]
 
 
@@ -37,20 +37,20 @@ async def async_setup_entry(
     selve_gateway = await hass.async_add_executor_job(
         Gateway,
         entry.data[CONF_PORT],
-        False        
+        False
     )
-   
+
     hass.data[DOMAIN][GATEWAYS_KEY][entry.entry_id] = selve_gateway
 
-    device_registry = await dr.async_get_registry(hass)
+    device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, entry.unique_id)},
         manufacturer="Selve",
-        name=entry.title,        
+        name=entry.title,
     )
-  
-    hass.config_entries.async_setup_platforms(entry, SELVE_PLATFORMS)
+
+    await hass.config_entries.async_forward_entry_setups(entry, SELVE_PLATFORMS)
 
     return True
 
@@ -60,8 +60,8 @@ class SelveDevice(Entity):
 
     def __init__(self, selve_device):
         """Initialize the device."""
-        self.selve_device = selve_device        
-        self._name = self.selve_device.name        
+        self.selve_device = selve_device
+        self._name = self.selve_device.name
 
     @property
     def unique_id(self):
