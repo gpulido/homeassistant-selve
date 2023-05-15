@@ -1,0 +1,16 @@
+{
+    "config": {
+        "error": {
+            "connection": "Cannot connect with selve usb gateway"
+          },
+        "step": {
+            "user": {
+                "data": {                
+                    "port": "The usb gateway system device"                    
+                },
+                "description": "Enter your Selve config.",
+                "title": "Configuration"
+            }
+        }
+    }
+}
