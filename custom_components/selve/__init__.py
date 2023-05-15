@@ -74,6 +74,6 @@ class SelveDevice(Entity):
         return self._name
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes of the device."""
         return {'selve_device_id': self.selve_device.iveoID}
