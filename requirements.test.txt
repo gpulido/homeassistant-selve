@@ -1,6 +1,8 @@
 # Strictly for tests
-pytest<6.0
-pytest-cov<3.0.0
+coverage
+pytest
+pytest-ayncio
+pytest-cov
 pytest-homeassistant-custom-component
 # From our manifest.json for our custom component
 python-selve==1.2.1
