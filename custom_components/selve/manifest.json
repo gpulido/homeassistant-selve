@@ -1,13 +1,13 @@
 {
+  "domain": "selve",
+  "name": "Selve",
   "codeowners": ["@gpulido"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/gpulido/homeassistant-selve",
-  "domain": "selve",
-  "name": "Selve",
+  "iot_class": "assumed_state",
   "requirements": [
     "python-selve==1.2.1"
   ],
-  "version": "2.1.0",
-  "iot_class": "assumed_state"
+  "version": "2.1.0"
 }
