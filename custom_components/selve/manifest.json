@@ -4,10 +4,10 @@
   "dependencies": [],
   "documentation": "https://github.com/gpulido/homeassistant-selve",
   "domain": "selve",
-  "iot_class": "assumed_state",
   "name": "Selve",
   "requirements": [
     "python-selve==1.2.1"
   ],
-  "version": "2.0.1"
+  "version": "2.1.0",
+  "iot_class": "assumed_state"
 }
