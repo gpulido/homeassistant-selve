@@ -2,23 +2,7 @@ DOMAIN = "selve"
 
 GATEWAYS_KEY = "gateways"
 
-from homeassistant.components.cover import (
-    #ATTR_POSITION,
-    #ATTR_TILT_POSITION,       
-    SUPPORT_OPEN, 
-    SUPPORT_CLOSE, 
-    SUPPORT_STOP,
-    SUPPORT_OPEN_TILT, 
-    SUPPORT_CLOSE_TILT, 
-    #SUPPORT_STOP_TILT, 
-    SUPPORT_SET_POSITION, 
-    SUPPORT_SET_TILT_POSITION,
-    DEVICE_CLASS_WINDOW, 
-    DEVICE_CLASS_BLIND, 
-    DEVICE_CLASS_AWNING, 
-    DEVICE_CLASS_SHUTTER  
-)
-
+from homeassistant.components.cover import CoverDeviceClass, CoverEntityFeature
 
 SERVICE_SET_POS1 = 'selve_set_pos1'
 SERVICE_SET_POS2 = 'selve_set_pos2'
@@ -27,9 +11,9 @@ SERVICE_SET_POS2 = 'selve_set_pos2'
 
 SELVE_CLASSTYPES = {
     0:None,
-    1:DEVICE_CLASS_SHUTTER,
-    2:DEVICE_CLASS_BLIND,
-    3:DEVICE_CLASS_SHUTTER,
+    1:CoverDeviceClass.SHUTTER,
+    2:CoverDeviceClass.BLIND,
+    3:CoverDeviceClass.SHUTTER,
     4:'cover',
     5:'cover',
     6:'cover',
@@ -40,4 +24,12 @@ SELVE_CLASSTYPES = {
     11:'cover',
 }
 
-SELVE_SUPPORTED_FEATURES = SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_STOP | SUPPORT_SET_POSITION | SUPPORT_OPEN_TILT | SUPPORT_CLOSE_TILT | SUPPORT_SET_TILT_POSITION
+SELVE_SUPPORTED_FEATURES = (
+    CoverEntityFeature.OPEN 
+    | CoverEntityFeature.CLOSE 
+    | CoverEntityFeature.STOP 
+    | CoverEntityFeature.SET_POSITION 
+    | CoverEntityFeature.OPEN_TILT 
+    | CoverEntityFeature.CLOSE_TILT 
+    | CoverEntityFeature.SET_TILT_POSITION
+)

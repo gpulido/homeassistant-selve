@@ -1,40 +1,21 @@
 """
 Support for Selve cover - shutters etc.
 """
-from custom_components.selve import SelveDevice
 import logging
 
+from custom_components.selve import SelveDevice
 from homeassistant.components.cover import CoverEntity
 
-from .const import DOMAIN, GATEWAYS_KEY, SELVE_CLASSTYPES, SELVE_SUPPORTED_FEATURES
-
-
-from typing import Callable, Optional
-from homeassistant.helpers.typing import (
-    ConfigType,
-    DiscoveryInfoType,
-    HomeAssistantType,
-)
-
+from .const import (DOMAIN, GATEWAYS_KEY, SELVE_CLASSTYPES,
+                    SELVE_SUPPORTED_FEATURES)
 
 _LOGGER = logging.getLogger(__name__)
-
-# def setup_platform(
-#     hass: HomeAssistantType,
-#     config: ConfigType,
-#     add_entities: Callable,
-#     discovery_info: Optional[DiscoveryInfoType] = None,
-# ) -> None:
-#     """Set up Selve covers."""
-#     devices = [ SelveCover(device,SELVE_CLASSTYPES.get(device.device_type.value)) for device in hass.data[DOMAIN]['devices']['cover']]
-#     add_entities(devices)
-
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Perform the setup for Selve devices."""
     entities = []
     gateway = hass.data[DOMAIN][GATEWAYS_KEY][config_entry.entry_id]
-    gateway.discover()
+    await hass.async_add_executor_job(gateway.discover)
     for device in list(gateway.devices.values()): #TODO filter by type cover
         device_type = SELVE_CLASSTYPES.get(device.device_type.value)
         if device_type is None:
@@ -44,8 +25,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.append( SelveCover(device, device_type))
 
     async_add_entities(entities)
-
-
 
 class SelveCover(SelveDevice, CoverEntity):
     """Representation a Selve Cover."""
@@ -117,5 +96,3 @@ class SelveCover(SelveDevice, CoverEntity):
     def stop_cover_tilt(self, **kwargs):
         """Stop the cover."""
         self.selve_device.stop()
-
-
