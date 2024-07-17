@@ -1,16 +1,16 @@
-from homeassistant import config_entries, core
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.discovery import load_platform
+import logging
 from collections import defaultdict
 
-import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
-import logging
-from .const import *
-
+import voluptuous as vol
+from homeassistant import config_entries, core
 from homeassistant.const import CONF_PORT, Platform
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.discovery import load_platform
+from homeassistant.helpers.entity import Entity
 from selve import Gateway
+
+from .const import *
 
 _LOGGER = logging.getLogger(__name__)
 
